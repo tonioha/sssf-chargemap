@@ -9,9 +9,9 @@ router.get('/', stationController.station_list_get);
 
 router.get('/:id', stationController.station_get);
 
-router.post('/:id', passport.authenticate('jwt', {session: false}), stationController.station_post);
+router.post('/', passport.authenticate('jwt', {session: false}), stationController.station_post);
 
-router.put('/:id', stationController.station_put);
+router.put('/:id', passport.authenticate('jwt', {session: false}), stationController.station_put);
 
 router.delete('/:id', passport.authenticate('jwt', {session: false}), stationController.station_delete);
 
