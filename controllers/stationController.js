@@ -8,12 +8,37 @@ const currentTypeModel = require('../models/currenttype');
 const station_list_get = async (req, res) => {
     let skip = 0;
     let limit = 10;
+    let topRight, bottomLeft;
+    let query = {};
+
+    if (req.query.topRight && req.query.bottomLeft) {
+        topRight = JSON.parse(req.query.topRight);
+        bottomLeft = JSON.parse(req.query.bottomLeft);
+        query = {
+            'Location':
+                {
+                    '$geoWithin':
+                        {
+                            '$geometry':
+                                {
+                                    'type': 'Polygon',
+                                    'coordinates': [[[bottomLeft.lng, topRight.lat],
+                                        [topRight.lng, topRight.lat],
+                                        [topRight.lng, bottomLeft.lat],
+                                        [bottomLeft.lng, bottomLeft.lat],
+                                        [bottomLeft.lng, topRight.lat]
+                                    ]]
+                                }
+                        }
+                }
+        };
+    }
 
     skip = parseInt(req.query.start);
     limit = parseInt(req.query.limit);
 
     try {
-        const stations = await stationModel.find().populate({
+        const stations = await stationModel.find(query).populate({
             path: "Connections",
             populate: [
                 {path: "ConnectionTypeID"},
