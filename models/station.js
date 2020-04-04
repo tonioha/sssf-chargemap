@@ -14,6 +14,7 @@ const stationSchema = new Schema({
     Location: {
         type: {
             type: String,
+            default: 'Point',
             enum: ['Point'],
             required: true
         },
