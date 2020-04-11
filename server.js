@@ -2,20 +2,23 @@
 
 require('dotenv').config();
 const express = require('express');
+
+const helmet = require('helmet');
 const graphqlHTTP = require('express-graphql');
 const MyGraphQLSchema = require('./schema/schema');
 const bodyParser = require('body-parser');
+const db = require('./database/db');
+const passport = require('./utils/pass');
+const authRoute = require('./routes/authRoute');
+const userRoute = require('./routes/userRoute');
 
 const app = express();
-const db = require('./database/db');
+app.use(helmet());
 
-const passport = require('./utils/pass');
-
-const authRoute = require('./routes/authRoute');
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: false}));
 
 app.use(
@@ -24,22 +27,18 @@ app.use(
         graphqlHTTP({
             schema: MyGraphQLSchema,
             graphiql: true,
-            context: {req, res, checkAuth}
+            context: {req, res}
         })(req, res);
     });
 
-const checkAuth = (req, res) => {
-    passport.authenticate('jwt', {session: false}, (err, user)=>{
-        if(err || !user){
-            throw new Error('Not authenticated');
-        }
-    })(req, res)
-};
-
-
 app.use('/auth', authRoute);
+app.use('/user', userRoute);
 
 
 db.on('connected', () => {
-    app.listen(3000);
+    if (process.env.NODE_ENV === 'production') {
+        const prod = require('./production')(app, process.env.PORT);
+    } else {
+        const localhost = require('./localhost')(app, process.env.HTTPS_PORT, process.env.HTTP_PORT);
+    }
 });

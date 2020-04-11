@@ -1,20 +1,16 @@
-'use strict';
-// fake database: ****************
-const users = [
-  {
-    user_id: 1,
-    name: 'Foo Bar',
-    email: 'foo@bar.fi',
-    password: 'foobar',
-  },
-  {
-    user_id: 2,
-    name: 'Bar Foo',
-    email: 'bar@foo.fi',
-    password: 'barfoo',
-  },
-];
-// *******************
+const mongoose = require('mongoose');
+
+const Schema = mongoose.Schema;
+
+const userSchema = new Schema({
+  email: String,
+  password: String,
+  full_name: String
+});
+
+module.exports = mongoose.model('User', userSchema);
+
+/*
 
 // fake database functions *********
 const getUser = (id) => {
@@ -42,3 +38,4 @@ module.exports = {
   getUserLogin,
   getUser,
 };
+*/

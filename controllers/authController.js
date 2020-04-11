@@ -3,22 +3,43 @@ const jwt = require('jsonwebtoken');
 const passport = require('passport');
 
 const login = (req, res) => {
-  passport.authenticate('local', {session: false}, (err, user, info) => {
-    if (err || !user) {
-      return res.status(400).json({
-        message: 'Something is not right',
-        user: user,
-      });
-    } req.login(user, {session: false}, (err) => {
-      if (err) {
-        res.send(err);
-      } // generate a signed son web token with the contents of user object and return it in the response
-      const token = jwt.sign(user, process.env.JWT_TOKEN);
-      return res.json({user, token});
-    });
-  })(req, res);
+  return new Promise((resolve, reject) => {
+    passport.authenticate('local', {session: false},
+        async (err, user, info) => {
+          try {
+            console.log('controller info', info);
+            if (err || !user) {
+              reject(info.message);
+            }
+            req.login(user, {session: false}, async (err) => {
+              if (err) {
+                reject(err);
+              }
+              // generate a signed son web token with the contents of user object and return it in the response
+              const token = jwt.sign(user, process.env.JWT_TOKEN);
+              resolve({user, token});
+            });
+          }
+          catch (e) {
+            reject(e.message);
+          }
+        })(req, res);
+  });
 };
+
+const checkAuth = (req, res) => {
+  return new Promise((resolve, reject) => {
+    passport.authenticate('jwt', (err, user) => {
+      if (err || !user) {
+        reject('Not authenticated or user expired');
+      }
+      resolve(user);
+    })(req, res);
+  });
+};
+
 
 module.exports = {
   login,
+  checkAuth
 };
