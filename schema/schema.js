@@ -18,6 +18,9 @@ const level = require('../models/leveltype');
 const station = require('../models/station');
 const user = require('../models/userModel');
 const authController = require('../controllers/authController');
+const rectangleBounds = require('../utils/rectangleBounds');
+const bcrypt = require('bcrypt');
+const saltRound = 12;
 
 const userType = new GraphQLObjectType({
     name: 'user',
