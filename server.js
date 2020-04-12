@@ -39,6 +39,6 @@ db.on('connected', () => {
     if (process.env.NODE_ENV === 'production') {
         const prod = require('./production')(app, process.env.PORT);
     } else {
-        const localhost = require('./localhost')(app, process.env.HTTPS_PORT, process.env.HTTP_PORT);
+        const localhost = require('./localhost')(app);
     }
 });
