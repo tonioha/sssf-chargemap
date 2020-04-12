@@ -373,15 +373,18 @@ const Mutation = new GraphQLObjectType({
                 try {
                     const hash = await bcrypt.hash(args.password, saltRound);
                     const userWithHash = {
-                        ...args,
-                        password: hash,
+                        email: args.username,
+                        full_name: args.full_name,
+                        password: hash
                     };
                     const newUser = new user(userWithHash);
                     const result = await newUser.save();
                     if (result !== null) {
                         // automatic login
                         req.body = args; // inject args to request body for passport
+                        console.log('args:', args);
                         const authResponse = await authController.login(req, res);
+                        console.log('ar', authResponse);
                         return {
                             id: authResponse.user._id,
                             ...authResponse.user,
